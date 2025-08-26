@@ -239,6 +239,7 @@ local animations = {
 	{name = "Tall Thing Idk", id = 118864464720628, speed = 1, timepos = 0, looped = true, freezeonend = false},
 	{name = "Cat Sit", id = 99424293618796, speed = 1, timepos = 0, looped = true, freezeonend = false},
 	{name = "Black Flash", id = 104767795538635, speed = 1, timepos = 0, looped = true, freezeonend = false},
+    {name = "Gojo Floating", id = 108321929691637, speed = 1, timepos = 0, looped = true, freezeonend = false},
 }
 
 local active = {}
