@@ -1,0 +1,88 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+
+-- ฟังก์ชันสร้าง GUI
+local function CreateToolGui()
+    -- ลบของเก่าออกก่อน (กันซ้อน)
+    if player.PlayerGui:FindFirstChild("ToolGui") then
+        player.PlayerGui.ToolGui:Destroy()
+    end
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "ToolGui"
+    ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+    -- ปุ่มเปิด/ปิด
+    local ToggleButton = Instance.new("TextButton")
+    ToggleButton.Parent = ScreenGui
+    ToggleButton.Size = UDim2.new(0, 80, 0, 30)
+    ToggleButton.Position = UDim2.new(0.8, 0, 0.1, 0)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    ToggleButton.TextColor3 = Color3.new(1,1,1)
+    ToggleButton.Text = "Tools"
+
+    -- ScrollingFrame (เล็กลง)
+    local ScrollingFrame = Instance.new("ScrollingFrame")
+    ScrollingFrame.Parent = ScreenGui
+    ScrollingFrame.Size = UDim2.new(0, 150, 0, 200)
+    ScrollingFrame.Position = UDim2.new(0.8, 0, 0.2, 0)
+    ScrollingFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    ScrollingFrame.Active = true
+    ScrollingFrame.Draggable = true
+    ScrollingFrame.ScrollBarThickness = 6
+    ScrollingFrame.CanvasSize = UDim2.new(0,0,0,0)
+    ScrollingFrame.Visible = false
+
+    local UIListLayout = Instance.new("UIListLayout")
+    UIListLayout.Parent = ScrollingFrame
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    UIListLayout.Changed:Connect(function()
+        ScrollingFrame.CanvasSize = UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y)
+    end)
+
+    -- ฟังก์ชันสร้างปุ่ม
+    local function CreateButton(toolName)
+        local button = Instance.new("TextButton")
+        button.Parent = ScrollingFrame
+        button.Size = UDim2.new(1, -8, 0, 25)
+        button.Position = UDim2.new(0, 4, 0, 0)
+        button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        button.TextColor3 = Color3.new(1, 1, 1)
+        button.Text = toolName
+        button.TextScaled = true
+
+        button.MouseButton1Click:Connect(function()
+            local args = {
+                [1] = player.Backpack,
+                [2] = ReplicatedStorage:FindFirstChild(toolName),
+                [3] = 0
+            }
+            ReplicatedStorage.CloneTool:FireServer(unpack(args))
+        end)
+    end
+
+    -- โหลด Tools
+    for _, item in ipairs(ReplicatedStorage:GetChildren()) do
+        if item:IsA("Tool") then
+            CreateButton(item.Name)
+        end
+    end
+
+    -- ปุ่มเปิด/ปิด
+    local visible = false
+    ToggleButton.MouseButton1Click:Connect(function()
+        visible = not visible
+        ScrollingFrame.Visible = visible
+    end)
+end
+
+-- เรียกสร้าง GUI ตอนแรก
+CreateToolGui()
+
+-- ให้สร้างใหม่ทุกครั้งที่ตัวละคร Respawn
+player.CharacterAdded:Connect(function()
+    task.wait(1) -- รอ PlayerGui โหลดก่อน
+    CreateToolGui()
+end)
